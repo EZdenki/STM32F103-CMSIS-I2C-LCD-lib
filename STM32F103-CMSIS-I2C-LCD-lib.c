@@ -1,6 +1,7 @@
 // =====================================================================================
 //  STM32F103-CMSIS-I2C-LCD-lib.c
-
+//      Version 1.0   07/17/2023    Updated core files and comments
+//
 //  Target Microcontroller: STM32F103 (Blue Pill)
 //  Target I2C device: I2C 16x2 LCD Driver Module based on the PCF8574.
 //

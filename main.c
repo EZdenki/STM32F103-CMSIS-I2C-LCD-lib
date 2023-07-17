@@ -1,5 +1,6 @@
 //  STM32F103-CMSIS-I2C-EEPROM
-
+//      Version 1.0   07/17/2023    Confirmed Working with New Core
+//
 //  Target Microcontroller: STM32F103 (Blue Pill)
 //  Mike Shegedin, 05/2023
 //
