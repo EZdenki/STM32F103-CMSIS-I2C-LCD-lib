@@ -1,11 +1,12 @@
-################################################################################
-# Makefile for STM32 CMSIS directory structure extracated from STM32CubeIDE
+##############################################################################################
+# Makefile for STM32F103 (Blue Pill) CMSIS directory structure extracated from STM32CubeIDE
 # project.
 #
 # Mike Shegedin, 2023
-################################################################################
+#     Version 1.0     7/24/2023   Updated Makefile "TARGET"
+##############################################################################################
 
-TARGET    = CMSIS-PWM-Input
+TARGET    = main
 SOURCE    = main
 MCPU      = cortex-m3
 STARTUP   = startup_stm32f103cbtx
@@ -16,11 +17,10 @@ FLASHPORT = SWD
 
 CC = arm-none-eabi-gcc
 
-CFLAGS = -mcpu=cortex-m3 -g3 --specs=nano.specs -Os -mthumb -mfloat-abi=soft -Wall
+CFLAGS = -mcpu=$(MCPU) -g3 --specs=nano.specs -Os -mthumb -mfloat-abi=soft -Wall
 
 INCLUDE1 =STM32CubeF1/Drivers/CMSIS/Device/ST/STM32F1xx/Include
 INCLUDE2 =STM32CubeF1/Drivers/CMSIS/Include
-#ST_INCL  =STM32CubeF1/Drivers/CMSIS/Device/ST/STM32F1xx/Source/Templates/gcc
 ST_INCL  =STM32CubeF1/Core/Startup
 
 $(TARGET).elf: $(SOURCE).o $(STARTUP).o $(LOADER) Makefile
