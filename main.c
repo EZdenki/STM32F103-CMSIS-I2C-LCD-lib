@@ -1,10 +1,15 @@
 //  main.c for STM32F103-CMSIS-I2C-LCD-lib
+//      Version 1.1   7 Aug 2023    Updated I2C and delay libraries. Udpdated I2C-LCD library.
 //      Version 1.0   07/17/2023    Confirmed Working with New Core
+//      Started       May 2023, Mike Shegedin
 //
 //  Target Microcontroller: STM32F103 (Blue Pill)
-//  Mike Shegedin, 05/2023
-//
 //  Target I2C device: I2C LCD Module driving a 2x16 LCD display
+//
+//  Program to demostrate LCD output routines. Displays the following:
+//      I2C-LCD 123 xxx
+//        Hello World!
+//  where xxx is a group of 3 characters that rapidly changes at increassing speeds.
 //
 //  HARDWARE SETUP
 //  ==============
@@ -51,7 +56,6 @@
 //
 
 #include "stm32f103xb.h"                  // Primary CMSIS header file
-#include "STM32F103-Pause-lib.c"          // pause and delay_us library
 
 I2C_TypeDef *LCD_I2C;                     // Needed for below I2C LCD driver library
 #include "STM32F103-CMSIS-I2C-LCD-lib.c"  // I2C LCD driver library
@@ -63,28 +67,22 @@ I2C_TypeDef *LCD_I2C;                     // Needed for below I2C LCD driver lib
 int
 main()
 {
-  char myString[] = "Hello World!";
+  char myString[] = "Hello World!";   // Define "string"
 
-  I2C_LCD_init( I2C1);                // Set the LCD interface to I2C1 and initalize it
-  I2C_LCD_cmd( LCD_4B_58F_2L );
-  I2C_LCD_cmd( LCD_CLEAR );
-  delay_us( 2e3 );                    // Min. 1.5 ms delay needed after LCD_CLEAR command
-  I2C_LCD_cmd( LCD_HOME );
-  delay_us( 2e3 );                    // Min. 1.5 ms delay needed after LCD_HOME command
-  I2C_LCD_cmd( LCD_ON_BLINK_CURSOR );
+  I2C_LCD_init( I2C2, 100e3);         // Set the LCD interface to I2C2 at 100 kHz
+  I2C_LCD_cmd( LCD_4B_58F_2L );       // Set LCD to 4-bit, 5x8 character set, 2 lines
+  I2C_LCD_cmd( LCD_CLEAR );           // Clear LCD
+  I2C_LCD_cmd( LCD_HOME );            // Move LCD to home position
+  I2C_LCD_cmd( LCD_ON_NO_CURSOR );    // Turn on LCD
 
-  I2C_LCD_puts( "Mike" );
-  I2C_LCD_cmd( LCD_1ST_LINE + 8 );
-  I2C_LCD_putc( '1' );
+  I2C_LCD_puts( myString );           // Display string
+  I2C_LCD_cmd( LCD_1ST_LINE + 13 );   // Adjust display position
+  I2C_LCD_putc( '1' );                // Display individual characters
   I2C_LCD_putc( '2' );
   I2C_LCD_putc( '3' );
-  I2C_LCD_putc( '4' );
-  delay_us( 1E6 ); 
-  I2C_LCD_cmd( LCD_2ND_LINE + 2 );
-  I2C_LCD_puts( myString );
 
-  I2C_LCD_cmd( 0x38 );
-
-
+  I2C_LCD_cmd( LCD_2ND_LINE + 1 );    // Move to 2nd postion on 2nd line
+  I2C_LCD_puts( "I2C-LCD-lib.c" );    // Display string constant
+  I2C_LCD_cmd( LCD_8B_58F_2L );       // Return to 8-bit mode
   return 1;
 }  

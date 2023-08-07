@@ -1,5 +1,6 @@
 // STM32F103-CMSIS-I2C-lib.c
-//   Version 1.0	7/16/2023	Updated Comments
+//   Version 1.1  6 Aug 2023    Added speed parameter to I2C_init() procedure
+//   Version 1.0  16 Jul 2023   Updated Comments
 //
 // Target Microcontroller: STM32F103 (Blue Pill)
 // Mike Shegedin, 05/2023   Started
@@ -11,9 +12,11 @@
 // The interface name is passed as-is, like "I2C_init( I2C1 );".
 // --------------------------------------------------------------------------------------------
 // void
-// I2C_init( I2C_TypeDef *thisI2C )
-//    Initialize the specified I2C interface. Pass I2C1 or I2C2 as a parameter. I2C1 uses GPIO
-//    pins B6 (SCL) and B7 (SDA). I2C2 uses GPIO pins B10 (SCL) and B11 (SDA).
+// I2C_init( I2C_TypeDef *thisI2C, uint32_t i2cSpeed )
+//    Initialize the specified I2C interface. Pass I2C1 or I2C2 as a parameter and the desired
+//    speed. The speed is limited to approx. 1 kHz to 550 kHz. Relies on the default 8 MHz
+//    clock. I2C1 uses GPIO pins B6 (SCL) and B7 (SDA). I2C2 uses GPIO pins B10 (SCL) and
+//    B11 (SDA).
 // --------------------------------------------------------------------------------------------
 // void
 // I2C_start( I2C_TypeDef *thisI2C )
@@ -47,7 +50,7 @@
 
 
 #include "stm32f103xb.h"  // Primary CMSIS header file
-#include "STM32F103-Pause-lib.c"
+//#include "STM32F103-Pause-lib.c"
 
 
 // I2C_init
@@ -58,11 +61,10 @@
 //       that have two I2C interfaces. For varianats that only have I2C1, this should work for
 //       that interface. The code in this routine should be modified to work with other STM32
 //       ICs.
-// NOTE: The timing settings assume an 8 MHz clock, running the I2C interface a the normal
-//       (slow) speed. These settings probably have to be changed if using different clock
-//       speeds or if faster I2C speeds are desired.
+// NOTE: The timing settings assume an 8 MHz clock. Possible I2C speeds are approx. 1 kHz to
+//       550 KHz. Speeds higher than 100 kHz should be tested carefully for reliability.
 void
-I2C_init( I2C_TypeDef *thisI2C )
+I2C_init( I2C_TypeDef *thisI2C, uint32_t i2cSpeed )
 {
   if( thisI2C == I2C1 )
   {
@@ -89,18 +91,17 @@ I2C_init( I2C_TypeDef *thisI2C )
                     0b11 << GPIO_CRH_MODE11_Pos );
   }
 
-  thisI2C->TRISE |= 0x02;                // Set the TRISE time
-  thisI2C->CR1   |=  I2C_CR1_SWRST;      // Set I2C reset bit
-  thisI2C->CR1   &= ~I2C_CR1_SWRST;      // Clear I2C reset bit
+  thisI2C->CR1   |=  I2C_CR1_SWRST;      // Set and then clear the I2C reset bit in order
+  thisI2C->CR1   &= ~I2C_CR1_SWRST;      // to reset the I2C interface.
+
   thisI2C->CR2   |= 0x08 << I2C_CR2_FREQ_Pos;  // Set to APB1 Periph. Clock freq. in MHz
                                                // (8 MHz = 8)
-  thisI2C->TRISE  = 0x09;                // Set to APB1 Peripheral Clock Freq. in MHz + 1
-                                         // (8+1 = 9)
-  thisI2C->CCR    = 0x28;                // CCR = 5 us * APB1 Periph. clock speed (8E6) = 40
-                                         // (0x28)
-                                         // F/S and DUTY bits are 0 as not using "fast mode
-                                         // I2C".
-  thisI2C->OAR1   = 0x4000;              // Probably not needed when you are the master
+  
+  thisI2C->TRISE  = 0xA;                 // Not strictly required, but enables the I2C
+                                         // interface operate at the specified speed.
+  
+  thisI2C->CCR    = 4e6 / i2cSpeed;      // Set the I2C speed. APB1 clock / 2 / desired speed.
+  
   thisI2C->CR1   |= I2C_CR1_PE;          // Turn on I2C peripheral
 }
 
