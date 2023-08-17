@@ -5,8 +5,6 @@
 // Target Microcontroller: STM32F103 (Blue Pill)
 // Mike Shegedin, 05/2023   Started
 //
-// Requires the STM32F103-Pause-lib.c library.
-//
 // Code to implement the following routines.
 // Note that the desired target I2C interface, I2C1 or I2C2, will be passed to *thisI2C.
 // The interface name is passed as-is, like "I2C_init( I2C1 );".
@@ -50,7 +48,6 @@
 
 
 #include "stm32f103xb.h"  // Primary CMSIS header file
-//#include "STM32F103-Pause-lib.c"
 
 
 // I2C_init
